@@ -5,20 +5,6 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 use CodeIgniter\Database\RawSql;
 
-// id INT AUTO_INCREMENT PRIMARY KEY,
-//   patient_id INT NOT NULL,
-//   staff_id INT NOT NULL,
-//   service_id INT NOT NULL,
-//   schedule_date DATE NOT NULL,
-//   start_time TIME NOT NULL,
-//   end_time TIME NOT NULL,
-//   status ENUM('booked','cancelled','completed') DEFAULT 'booked',
-//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-// reschedule_of int nullable
-// 
-//   FOREIGN KEY (patient_id) REFERENCES users(id),
-//   FOREIGN KEY (staff_id) REFERENCES users(id),
-//   FOREIGN KEY (service_id) REFERENCES services(id)
 class AddReservations extends Migration
 {
     public function up()
@@ -35,7 +21,8 @@ class AddReservations extends Migration
                 'type' => 'INT'
             ],
             'service' => [
-                'type' => 'VARCHAR'
+                'type'       => 'VARCHAR',
+                'constraint' => 255, // FIXED
             ],
             'schedule_date' => [
                 'type' => 'DATE'
@@ -65,7 +52,7 @@ class AddReservations extends Migration
                 'default' => 'pending'
             ],
             'created_at' => [
-                'type' => 'TIMESTAMP',
+                'type'    => 'TIMESTAMP',
                 'default' => new RawSql('CURRENT_TIMESTAMP')
             ],
         ]);
@@ -73,8 +60,8 @@ class AddReservations extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('patient_id', 'users', 'id');
         $this->forge->addForeignKey('staff_id', 'users', 'id');
-        $this->forge->createTable('reservations');
         $this->forge->addForeignKey('reschedule_of', 'reservations', 'id');
+        $this->forge->createTable('reservations');
     }
 
     public function down()
