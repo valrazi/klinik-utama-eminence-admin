@@ -22,17 +22,17 @@
         <div class="card card-outline card-dark">
             <div class="card-header text-center bg-dark">
                 <a href="../../index2.html" class="h1">
-                    <img 
-                    src="https://eminence.id/wp-content/uploads/2022/11/Eminence-Logo-White-Invert.png"
-                    class="img-fluid">
+                    <img
+                        src="https://eminence.id/wp-content/uploads/2022/11/Eminence-Logo-White-Invert.png"
+                        class="img-fluid">
                 </a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">Login Backoffice Administrator</p>
 
-                <form action="../../index3.html" method="post">
+                <form action="<?= base_url('auth/login') ?>" method="post">
                     <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Email">
+                        <input type="email" name="email" class="form-control" placeholder="Email" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Password">
+                        <input type="password" name="password" class="form-control" placeholder="Password" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -49,12 +49,11 @@
                     </div>
                     <div class="row">
                         <div class="col-4">
-                            <!-- <button type="submit" class="btn btn-dark btn-block">Sign In</button> -->
-                            
-                            <a href="<?= base_url('/backoffice')?>" class="btn btn-dark btn-block">Sign In</a>
+                            <button type="submit" class="btn btn-dark btn-block">Sign In</button>
                         </div>
                     </div>
                 </form>
+
 
             </div>
         </div>

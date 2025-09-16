@@ -105,7 +105,7 @@ class Auth extends BaseController
                     ->withInput()
                     ->with('fail', 'Register failed: ' . implode(', ', $user->errors()));
             }
-            return redirect()->to('auth/login')->with('success', 'Account created succesfully');
+            return redirect()->to(base_url('/auth/login'))->with('success', 'Account created succesfully');
         }
     }
 
@@ -137,7 +137,7 @@ class Auth extends BaseController
             if ($user['role'] === 'patient') {
                 return redirect()->to('/users/home');
             } else {
-                return redirect()->to('/backoffice/dashboard');
+                return redirect()->to(base_url('/backoffice'));
             }
         }
 
@@ -151,7 +151,7 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/auth/login')->with('success', 'You have been signed out');
+        return redirect()->to(base_url('/auth/login'))->with('success', 'You have been signed out');
     }
 
     

@@ -10,7 +10,7 @@
   <ul class="navbar-nav ml-auto">
     <!-- Navbar Search -->
     <li class="nav-item">
-      <a href="<?= base_url('/auth/login-backoffice')?>" class="nav-link link-underline-opacity-25 link-underline-opacity-100-hover">
+      <a href="<?= base_url('/auth/logout')?>" class="nav-link link-underline-opacity-25 link-underline-opacity-100-hover">
         <span class="text-danger"><i class="bi bi-box-arrow-right"></i> Sign Out</span>
       </a>
 

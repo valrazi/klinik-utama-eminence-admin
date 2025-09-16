@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\ReservationModel;
 use App\Models\UserModel;
 
 class Backoffice extends BaseController
@@ -12,8 +13,48 @@ class Backoffice extends BaseController
     }
     public function index(): string
     {
-        return view('backoffice/home');
+        $userModel = new UserModel();
+        $reservationModel = new ReservationModel();
+
+        // Existing dashboard stats
+        $totalPatients   = $userModel->where(['role' => 'patient'])->countAllResults();
+        $newRsv          = $reservationModel->where(['status' => 'booked', 'reschedule_of' => null])->countAllResults();
+        $rescheduledRsv  = $reservationModel->where(['status' => 'rescheduled'])->countAllResults();
+        $cancelledRsv    = $reservationModel->where(['status' => 'cancelled'])->countAllResults();
+        $completedRsv    = $reservationModel->where(['status' => 'completed'])->countAllResults();
+
+        // Patient graph data
+        $builder = $userModel->select("
+    YEAR(created_at) as year,
+    MONTH(created_at) as month,
+    MIN(DATE_FORMAT(created_at, '%M %Y')) as month_name,
+    SUM(CASE WHEN existing_patient = 0 AND role = 'patient' THEN 1 ELSE 0 END) as new_patient,
+    SUM(CASE WHEN existing_patient = 1 AND role = 'patient' THEN 1 ELSE 0 END) as existing_patient
+")
+            ->where('role', 'patient')
+            ->groupBy('year, month')
+            ->orderBy('year, month', 'ASC')
+            ->findAll();
+
+
+        $labels = array_column($builder, 'month_name');
+        $newPatientData = array_column($builder, 'new_patient');
+        $existingPatientData = array_column($builder, 'existing_patient');
+
+        $data = [
+            'totalPatients'       => $totalPatients,
+            'newRsv'              => $newRsv,
+            'rescheduledRsv'      => $rescheduledRsv,
+            'cancelledRsv'        => $cancelledRsv,
+            'completedRsv'        => $completedRsv,
+            'chartLabels'         => json_encode($labels),
+            'chartNewPatients'    => json_encode($newPatientData),
+            'chartExistingPatients' => json_encode($existingPatientData),
+        ];
+
+        return view('backoffice/home', $data);
     }
+
 
     public function addStaff()
     {

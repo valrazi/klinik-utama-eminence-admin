@@ -28,7 +28,7 @@ class Therapists extends BaseController
         }
 
         $data = [
-            'title'  => 'Edit Dokter',
+            'title'  => 'Edit Therapist',
             'doctor' => $doctor,
         ];
 

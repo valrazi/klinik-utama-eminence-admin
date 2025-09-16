@@ -14,7 +14,7 @@ echo $this->section('content');
         <!-- small box -->
         <div class="small-box bg-info">
           <div class="inner">
-            <h3>10</h3>
+            <h3><?= $newRsv ?></h3>
             <p>New Reservations</p>
           </div>
           <div class="icon">
@@ -28,7 +28,7 @@ echo $this->section('content');
         <!-- small box -->
         <div class="small-box bg-success">
           <div class="inner">
-            <h3>5</h3>
+            <h3><?= $rescheduledRsv ?></h3>
 
             <p>Reschedule Reservations</p>
           </div>
@@ -43,7 +43,7 @@ echo $this->section('content');
         <!-- small box -->
         <div class="small-box bg-danger">
           <div class="inner">
-            <h3>0</h3>
+            <h3><?= $cancelledRsv ?></h3>
 
             <p>Canceled Reservations</p>
           </div>
@@ -57,7 +57,7 @@ echo $this->section('content');
         <!-- small box -->
         <div class="small-box bg-warning">
           <div class="inner">
-            <h3>15</h3>
+            <h3><?= $totalPatients ?></h3>
 
             <p>Total Patients</p>
           </div>
@@ -77,7 +77,7 @@ echo $this->section('content');
             <div class="card-header">
               <h3 class="card-title">Reservation Chart</h3>
 
-              
+
             </div>
             <div class="card-body">
               <canvas id="donutChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
@@ -118,7 +118,7 @@ echo $this->section('content');
 <script>
   $(function() {
     var areaChartData = {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      labels: <?= $chartLabels ?>,
       datasets: [{
           label: 'New Patient',
           backgroundColor: 'rgba(60,141,188,0.9)',
@@ -128,7 +128,7 @@ echo $this->section('content');
           pointStrokeColor: 'rgba(60,141,188,1)',
           pointHighlightFill: '#fff',
           pointHighlightStroke: 'rgba(60,141,188,1)',
-          data: [28, 48, 40, 19, 86, 27, 90]
+          data: <?= $chartNewPatients ?>
         },
         {
           label: 'Existing Patient',
@@ -139,10 +139,10 @@ echo $this->section('content');
           pointStrokeColor: '#c1c7d1',
           pointHighlightFill: '#fff',
           pointHighlightStroke: 'rgba(220,220,220,1)',
-          data: [65, 59, 80, 81, 56, 55, 40]
+          data: <?= $chartExistingPatients ?>
         },
       ]
-    }
+    };
 
     var areaChartOptions = {
       maintainAspectRatio: false,
@@ -170,14 +170,14 @@ echo $this->section('content');
     var donutChartCanvas = $('#donutChart').get(0).getContext('2d')
     var donutData = {
       labels: [
-        'Canceled',
+        'Cancelled',
         'Rescheduled',
         'Booked',
         'Completed',
       ],
       datasets: [{
-        data: [2, 20, 5, 15],
-        backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef',],
+        data: [<?= $cancelledRsv ?>, <?= $rescheduledRsv ?>, <?= $newRsv ?>, <?= $completedRsv ?>],
+        backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', ],
       }]
     }
     var donutOptions = {
