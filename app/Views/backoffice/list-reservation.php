@@ -43,7 +43,7 @@
                                             <td><?= esc($res['patient_name']) ?></td>
                                             <td><?= $res['patient_existing'] ? 'Pasien Lama' : 'Pasien Baru' ?></td>
                                             <td><?= esc($res['patient_whatsapp_number']) ?></td>
-                                            <td><?= esc(strtoupper($res['service_id'])) . " - " .  esc($res['staff_name']) ?></td>
+                                            <td><?= esc(strtoupper($res['service'])) . " - " .  esc($res['staff_name']) ?></td>
                                             <td><?= esc($res['schedule_date']) ?></td>
                                             <td><?= esc($res['start_time']) ?> - <?= esc($res['end_time']) ?></td>
                                             <td>

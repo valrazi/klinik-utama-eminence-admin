@@ -70,7 +70,7 @@ class ReservationsController extends BaseController
         $formattedDate = date('Y-m-d', strtotime($date));
 
         // Doctor service case
-        if ($reservation['service_id'] === 'injury') {
+        if ($reservation['service'] === 'injury') {
             $schedules = $scheduleModel
                 ->select('start_time, end_time')
                 ->where('doctor_id', $reservation['staff_id'])
@@ -128,48 +128,88 @@ class ReservationsController extends BaseController
     }
 
     public function updateReschedule($id)
-{
-    $reservationModel = new ReservationModel();
-    $reservation = $reservationModel->find($id);
+    {
+        $reservationModel = new ReservationModel();
+        $doctorScheduleModel = new DoctorScheduleModel();
+        $db = \Config\Database::connect();
 
-    if (!$reservation) {
-        return redirect()->to(base_url('backoffice/reservations'))
-            ->with('error', 'Reservasi tidak ditemukan');
+        $reservation = $reservationModel->find($id);
+
+        if (!$reservation) {
+            return redirect()->to(base_url('backoffice/reservations'))
+                ->with('error', 'Reservasi tidak ditemukan');
+        }
+
+        $date = $this->request->getPost('date');
+        $time = $this->request->getPost('time'); // format: start-end
+        [$start, $end] = explode('-', $time);
+
+        // check if new schedule already taken
+        $exists = $reservationModel
+            ->where('staff_id', $reservation['staff_id'])
+            ->where('schedule_date', $date)
+            ->where('start_time', $start)
+            ->where('end_time', $end)
+            ->first();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Jadwal sudah terpakai!');
+        }
+
+        // check doctor schedule availability
+        $doctorSchedule = $doctorScheduleModel
+            ->where([
+                'schedule_date' => $date,
+                'start_time'    => $start,
+                'end_time'      => $end,
+            ])
+            ->first();
+
+        if (!$doctorSchedule || !$doctorSchedule['is_available']) {
+            return redirect()->back()->with('error', 'Jadwal dokter tidak tersedia!');
+        }
+
+        // Begin transaction
+        $db->transStart();
+
+        // create new reservation with reschedule_of reference
+        $reservationModel->insert([
+            'patient_id'     => $reservation['patient_id'],
+            'staff_id'       => $reservation['staff_id'],
+            'service'        => $reservation['service'],
+            'schedule_date'  => $date,
+            'start_time'     => $start,
+            'end_time'       => $end,
+            'status'         => 'booked',
+            'reschedule_of'  => $id
+        ]);
+
+        // mark old reservation as rescheduled
+        $reservationModel->update($id, ['status' => 'rescheduled']);
+
+        // make new schedule unavailable
+        $doctorScheduleModel->update($doctorSchedule['id'], ['is_available' => false]);
+
+        // make old schedule available again
+        $doctorScheduleOld = $doctorScheduleModel
+            ->where([
+                'schedule_date' => $reservation['schedule_date'],
+                'start_time'    => $reservation['start_time'],
+                'end_time'      => $reservation['end_time'],
+            ])
+            ->first();
+
+        if ($doctorScheduleOld) {
+            $doctorScheduleModel->update($doctorScheduleOld['id'], ['is_available' => true]);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Reschedule gagal, coba lagi.');
+        }
+
+        return redirect()->to(base_url("backoffice/reservations"))
+            ->with('success', 'Reservasi berhasil direschedule');
     }
-
-    $date = $this->request->getPost('date');
-    $time = $this->request->getPost('time'); // format: start-end
-    [$start, $end] = explode('-', $time);
-
-    // check if schedule already taken
-    $exists = $reservationModel
-        ->where('staff_id', $reservation['staff_id'])
-        ->where('schedule_date', $date)
-        ->where('start_time', $start)
-        ->where('end_time', $end)
-        ->first();
-
-    if ($exists) {
-        return redirect()->back()->with('error', 'Jadwal sudah terpakai!');
-    }
-
-    // create new reservation with reschedule_of reference
-    $reservationModel->insert([
-        'patient_id'     => $reservation['patient_id'],
-        'staff_id'       => $reservation['staff_id'],
-        'service_id'     => $reservation['service_id'],
-        'schedule_date'  => $date,
-        'start_time'     => $start,
-        'end_time'       => $end,
-        'status'         => 'booked',
-        'reschedule_of'  => $id
-    ]);
-
-    $reservationModel->update($id, [ 'status' => 'rescheduled' ]);
-
-
-    return redirect()->to(base_url("backoffice/reservations"))
-        ->with('success', 'Reservasi berhasil direschedule');
-}
-
 }

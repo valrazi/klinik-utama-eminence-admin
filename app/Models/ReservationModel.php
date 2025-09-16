@@ -12,7 +12,7 @@ class ReservationModel extends Model
     protected $allowedFields    = [
         'patient_id',
         'staff_id',
-        'service_id',
+        'service',
         'schedule_date',
         'start_time',
         'end_time',
